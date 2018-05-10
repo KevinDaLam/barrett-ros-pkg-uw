@@ -920,6 +920,7 @@ template<size_t DOF>
     }
 
     wam_node.forceHandCloseSpread();
+    ros::Duration(3).sleep();
 
     return 0;
   }
