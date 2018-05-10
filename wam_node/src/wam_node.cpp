@@ -286,6 +286,8 @@ template<size_t DOF>
     publishHand(void);
     void
     updateRT(ProductManager& pm);
+    bool 
+    forceHandCloseSpread();
   };
 
 // Templated Initialization Function
@@ -888,6 +890,14 @@ template<size_t DOF>
     }
   }
 
+template<size_t DOF>
+  bool WamNode<DOF>::forceHandCloseSpread()
+  {
+    ROS_INFO("Closing the BarrettHand Spread");
+    hand->close(Hand::SPREAD, false);
+    return true;
+  }
+
 //wam_main Function
 template<size_t DOF>
   int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam)
@@ -908,6 +918,8 @@ template<size_t DOF>
       wam_node.updateRT(pm);
       pub_rate.sleep();
     }
+
+    wam_node.forceHandCloseSpread();
 
     return 0;
   }
