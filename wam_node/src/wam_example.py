@@ -19,8 +19,8 @@
 
 import numpy as np
 import rospy
-from wam_msgs.msg import RTJointPos
-from wam_srvs.srv import *
+from wam_common.msg import RTJointPos
+from wam_common.srv import *
 from numpy import zeros
 from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
