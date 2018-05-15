@@ -1,4 +1,6 @@
 <launch>
-  <node name="wam_node" type="wam_node" pkg="wam_node" output="screen" />
+    <node pkg="rosbag" type="record" name="recorder" args="--all -O $(find wam_node)/bagfiles/latest_wam_run"/>
+
+    <node name="wam_node" type="wam_node" pkg="wam_node" output="screen" />
 </launch>
 
