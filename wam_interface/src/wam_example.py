@@ -272,14 +272,14 @@ if __name__ == "__main__":
 
     wam_home =  [-0.05, -1.84, 0, 2.8]
 
-    # move_wam_from_current_location(wam_home, 2, 250)
+    move_wam_from_current_location(wam_home, 2, 250)
 
-    # move_wam_from_current_location(experiment_home_point, 2, 250)
-    # move_wam_from_current_location(experiment_pickup_point, 2, 250)
-    # close_wam_hand()
-    # move_wam_from_current_location(experiment_dropoff_point, 2, 250)
-    # open_wam_hand()
-    # move_wam_from_current_location(experiment_home_point, 2, 250)
-    # close_wam_hand_spread() 
-    # move_wam_from_current_location(wam_home, 2, 250)
+    move_wam_from_current_location(experiment_home_point, 2, 250)
+    move_wam_from_current_location(experiment_pickup_point, 2, 250)
+    close_wam_hand()
+    move_wam_from_current_location(experiment_dropoff_point, 2, 250)
+    open_wam_hand()
+    move_wam_from_current_location(experiment_home_point, 2, 250)
+    close_wam_hand_spread() 
+    move_wam_from_current_location(wam_home, 2, 250)
 
