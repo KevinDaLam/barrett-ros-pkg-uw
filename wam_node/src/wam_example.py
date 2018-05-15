@@ -59,9 +59,9 @@ def create_joint_trajectory(start_position, end_position,
     points such that the hand doesn't turn into the arm.
 
     args:
-      start_position: a 7 element list containing the start position for each
+      start_position: a <DOF> element list containing the start position for each
         joint.
-      end_position: a 7 element list containing the end position for each
+      end_position: a <DOF> element list containing the end position for each
         joint.
       duration: a float containing the time the trajectory should finish at
         in seconds.
@@ -69,7 +69,7 @@ def create_joint_trajectory(start_position, end_position,
         generate in Hz.
 
     returns:
-      trajectory: an N * 7 numpy array of joint coordinates.
+      trajectory: an N * <DOF> numpy array of joint coordinates.
       vel_lims: the joint velocities required to perform trajectory.
         v1 = abs((p2 - p1) * 250). The last velocity, vn, is set equal to v(n-1)
         The absolute value is required for the WAM. Even if it's traveling in
@@ -106,9 +106,9 @@ def send_joint_trajectory(trajectory, velocities, frequency=250):
     This is used to send a trajectory to the WAM arm at a given frequency.
 
     args:
-      trajectory: a Nx7 numpy array. The 7 columns correspond to the 7 joints
+      trajectory: a Nx<DOF> numpy array. The <DOF> columns correspond to the <DOF> joints
         on a WAM.
-      velocities: a Nx7 numpy array. The 7 columns correspond to the 7 joints
+      velocities: a Nx<DOF> numpy array. The <DOF> columns correspond to the <DOF> joints
         on a WAM. Should all be positive (even if traveling in the negative
         direction.
       frequency: The frequency the trajectory should be published at.
@@ -145,8 +145,8 @@ def create_and_send_wam_trajectory(wam_start, wam_end, duration, frequency=250):
     wam_start and wam_end that lasts duration seconds send at frequency.
 
     args:
-      wam_start: a 1x7 array of joint coordinates.
-      wam_end: a 1x7 array of joint coordinates.
+      wam_start: a 1x<DOF> array of joint coordinates.
+      wam_end: a 1x<DOF> array of joint coordinates.
       duration: A float. The duration of the trajectory in seconds.
       frequency: The frequency of values. With the default, a new position is
         specified for every 0.004 seconds. 250 Hz is what wam_node is expecting.
@@ -166,7 +166,7 @@ def move_wam_from_current_location(wam_end, duration, frequency=250):
     Publishes the trajectory at frequency Hz.
 
     args:
-      wam_end: a 1x7 array of joint coordinates.
+      wam_end: a 1x<DOF> array of joint coordinates.
       duration: A float. The duration of the trajectory in seconds.
       frequency: The frequency of values. With the default, a new position is
         specified for every 0.004 seconds. 250 Hz is what wam_node is expecting.
@@ -186,8 +186,8 @@ def  request_wam_move(end_point, velocity_limits):
     pace.
 
     args:
-      end_point: a 7 long list of joint coordinates.
-      velocity_limits: a 7 long list of joint velocity limits.
+      end_point: a <DOF> long list of joint coordinates.
+      velocity_limits: a <DOF> long list of joint velocity limits.
     """
 
     move_wam_srv = rospy.ServiceProxy('/wam/joint_move', JointMove)
@@ -261,7 +261,7 @@ if __name__ == "__main__":
     # # This will keep spewing out the current joint coordinates.
     # # Kill it when you're done by hitting CTRL + C.
 
-    experiment_home_point = [-0.05, -1.84, 0, 3.09]
+    experiment_home_point = [-0.05, -1.84, 0, 2.8]
 
     experiment_pickup_point = [-0.05, -1.84, 0, 2]
 
@@ -270,16 +270,16 @@ if __name__ == "__main__":
     experiment_dropoff_point = [-0.05, -1.84, 0, 1]
 
 
-    wam_home =  [-0.05, -1.84,0,3.09]
+    wam_home =  [-0.05, -1.84, 0, 2.8]
 
-    move_wam_from_current_location(wam_home, 2, 250)
+    # move_wam_from_current_location(wam_home, 2, 250)
 
-    move_wam_from_current_location(experiment_home_point, 2, 250)
-    move_wam_from_current_location(experiment_pickup_point, 2, 250)
-    close_wam_hand()
-    move_wam_from_current_location(experiment_dropoff_point, 2, 250)
-    open_wam_hand()
-    move_wam_from_current_location(experiment_home_point, 2, 250)
-    close_wam_hand_spread()
-    move_wam_from_current_location(wam_home, 2, 250)
+    # move_wam_from_current_location(experiment_home_point, 2, 250)
+    # move_wam_from_current_location(experiment_pickup_point, 2, 250)
+    # close_wam_hand()
+    # move_wam_from_current_location(experiment_dropoff_point, 2, 250)
+    # open_wam_hand()
+    # move_wam_from_current_location(experiment_home_point, 2, 250)
+    # close_wam_hand_spread() 
+    # move_wam_from_current_location(wam_home, 2, 250)
 

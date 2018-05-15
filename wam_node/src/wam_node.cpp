@@ -891,10 +891,16 @@ template<size_t DOF>
   }
 
 template<size_t DOF>
-  bool WamNode<DOF>::forceHandCloseSpread()
+  bool WamNode<DOF>::tearDown()
   {
-    ROS_INFO("Closing the BarrettHand Spread");
-    hand->close(Hand::SPREAD, false);
+    std_srvs::Empty::Request req;
+    std_srvs::Empty::Response res;
+    this->goHome(req, res);
+    ros::Duration(3).sleep();
+    this->handOpenGrasp(req, res);
+    ros::Duration(1).sleep();
+    this->handCloseSpread(req, res);
+    ros::Duration(2).sleep();
     return true;
   }
 
@@ -919,8 +925,7 @@ template<size_t DOF>
       pub_rate.sleep();
     }
 
-    wam_node.forceHandCloseSpread();
-    ros::Duration(3).sleep();
+    wam_node.tearDown();
 
     return 0;
   }
