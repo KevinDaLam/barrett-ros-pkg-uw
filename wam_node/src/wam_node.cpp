@@ -290,7 +290,7 @@ template<size_t DOF>
     void
     updateRT(ProductManager& pm);
     bool 
-    forceHandCloseSpread();
+    tearDownHand(void);
   };
 
 // Templated Initialization Function
@@ -916,16 +916,10 @@ template<size_t DOF>
   }
 
 template<size_t DOF>
-  bool WamNode<DOF>::tearDown()
+  bool WamNode<DOF>::tearDownHand()
   {
-    std_srvs::Empty::Request req;
-    std_srvs::Empty::Response res;
-    this->goHome(req, res);
-    ros::Duration(3).sleep();
-    this->handOpenGrasp(req, res);
-    ros::Duration(1).sleep();
-    this->handCloseSpread(req, res);
-    ros::Duration(2).sleep();
+    hand->open(Hand::GRASP, true);
+    hand->close(Hand::SPREAD, true);
     return true;
   }
 
@@ -950,7 +944,8 @@ template<size_t DOF>
       pub_rate.sleep();
     }
 
-    wam_node.tearDown();
+    wam_node.tearDownHand();
+    ros::Duration(3).sleep();
 
     return 0;
   }
