@@ -56,6 +56,8 @@ find_package(catkin REQUIRED COMPONENTS
    RTOrtnPos.msg
    RTOrtnVel.msg
    RTPose.msg
+   TactileArray.msg
+   HandState.msg
   )
 
 # Generate services in the 'srv' folder

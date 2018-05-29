@@ -290,7 +290,7 @@ template<size_t DOF>
     void
     updateRT(ProductManager& pm);
     bool 
-    forceHandCloseSpread();
+    tearDownHand(void);
   };
 
 // Templated Initialization Function
@@ -750,9 +750,10 @@ template<size_t DOF>
       for (size_t j = 0; j < 3; j++)
         bhand_joint_state.position[j + 4] = ho[j];
 
+      /*
       std::vector<TactilePuck*> tactile_pucks = hand->getTactilePucks();
 
-      TactilePuck::vtype finger1, finger2, finger3, palm;
+      TactilePuck::v_type finger1, finger2, finger3, palm;
       finger1 = tactile_pucks[0]->getFullData();
       finger2 = tactile_pucks[1]->getFullData();
       finger3 = tactile_pucks[2]->getFullData();
@@ -770,6 +771,8 @@ template<size_t DOF>
       for (int i = 0; i < palm.size(); i++){
         bhand_joint_state.tactile_array.palm[i] = palm[i];
       }
+
+      */
 
       bhand_joint_state.header.stamp = ros::Time::now(); // Set the timestamp
       bhand_joint_state_pub.publish(bhand_joint_state); // Publish the BarrettHand joint states
@@ -916,16 +919,10 @@ template<size_t DOF>
   }
 
 template<size_t DOF>
-  bool WamNode<DOF>::tearDown()
+  bool WamNode<DOF>::tearDownHand()
   {
-    std_srvs::Empty::Request req;
-    std_srvs::Empty::Response res;
-    this->goHome(req, res);
-    ros::Duration(3).sleep();
-    this->handOpenGrasp(req, res);
-    ros::Duration(1).sleep();
-    this->handCloseSpread(req, res);
-    ros::Duration(2).sleep();
+    hand->open(Hand::GRASP, true);
+    hand->close(Hand::SPREAD, true);
     return true;
   }
 
@@ -950,7 +947,8 @@ template<size_t DOF>
       pub_rate.sleep();
     }
 
-    wam_node.tearDown();
+    wam_node.tearDownHand();
+    ros::Duration(3).sleep();
 
     return 0;
   }
