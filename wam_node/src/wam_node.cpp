@@ -42,6 +42,8 @@
 #include "wam_common/RTCartVel.h"
 #include "wam_common/RTOrtnPos.h"
 #include "wam_common/RTOrtnVel.h"
+#include "wam_common/TactileArray.h"
+#include "wam_common/HandState.h"
 #include "wam_common/GravityComp.h"
 #include "wam_common/Hold.h"
 #include "wam_common/JointMove.h"
@@ -205,7 +207,8 @@ template<size_t DOF>
     ros::Subscriber ortn_pos_sub;
 
     //Published Topics
-    sensor_msgs::JointState wam_joint_state, bhand_joint_state;
+    sensor_msgs::JointState wam_joint_state;
+    wam_common::HandState bhand_joint_state;
     geometry_msgs::PoseStamped wam_pose;
 
     //Publishers
@@ -746,6 +749,28 @@ template<size_t DOF>
         bhand_joint_state.position[i] = hi[i];
       for (size_t j = 0; j < 3; j++)
         bhand_joint_state.position[j + 4] = ho[j];
+
+      std::vector<TactilePuck*> tactile_pucks = hand->getTactilePucks();
+
+      TactilePuck::vtype finger1, finger2, finger3, palm;
+      finger1 = tactile_pucks[0]->getFullData();
+      finger2 = tactile_pucks[1]->getFullData();
+      finger3 = tactile_pucks[2]->getFullData();
+      palm = tactile_pucks[3]->getFullData();
+
+      for (int i = 0; i < finger1.size(); i++){
+        bhand_joint_state.tactile_array.finger1[i] = finger1[i];
+      }
+      for (int i = 0; i < finger2.size(); i++){
+        bhand_joint_state.tactile_array.finger2[i] = finger2[i];
+      }
+      for (int i = 0; i < finger3.size(); i++){
+        bhand_joint_state.tactile_array.finger3[i] = finger3[i];
+      }
+      for (int i = 0; i < palm.size(); i++){
+        bhand_joint_state.tactile_array.palm[i] = palm[i];
+      }
+
       bhand_joint_state.header.stamp = ros::Time::now(); // Set the timestamp
       bhand_joint_state_pub.publish(bhand_joint_state); // Publish the BarrettHand joint states
       btsleep(1.0 / BHAND_PUBLISH_FREQ); // Sleep according to the specified publishing frequency
