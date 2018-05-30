@@ -331,7 +331,7 @@ template<size_t DOF>
       hand->update();
 
       //Publishing the following topics only if there is a BarrettHand present
-      bhand_joint_state_pub = nh_.advertise < wam_common::HandState > ("joint_states", 1); // bhand/joint_states
+      bhand_joint_state_pub = nh_.advertise < wam_common::HandState > ("hand_state", 1); // bhand/joint_states
 
       //Advertise the following services only if there is a BarrettHand present
       hand_open_grsp_srv = nh_.advertiseService("open_grasp", &WamNode<DOF>::handOpenGrasp, this); // bhand/open_grasp
