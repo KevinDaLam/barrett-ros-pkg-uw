@@ -331,7 +331,7 @@ template<size_t DOF>
       hand->update();
 
       //Publishing the following topics only if there is a BarrettHand present
-      bhand_joint_state_pub = nh_.advertise < sensor_msgs::JointState > ("joint_states", 1); // bhand/joint_states
+      bhand_joint_state_pub = nh_.advertise < wam_common::HandState > ("joint_states", 1); // bhand/joint_states
 
       //Advertise the following services only if there is a BarrettHand present
       hand_open_grsp_srv = nh_.advertiseService("open_grasp", &WamNode<DOF>::handOpenGrasp, this); // bhand/open_grasp
@@ -750,7 +750,6 @@ template<size_t DOF>
       for (size_t j = 0; j < 3; j++)
         bhand_joint_state.position[j + 4] = ho[j];
 
-      /*
       std::vector<TactilePuck*> tactile_pucks = hand->getTactilePucks();
 
       TactilePuck::v_type finger1, finger2, finger3, palm;
@@ -762,6 +761,7 @@ template<size_t DOF>
       for (int i = 0; i < finger1.size(); i++){
         bhand_joint_state.tactile_array.finger1[i] = finger1[i];
       }
+
       for (int i = 0; i < finger2.size(); i++){
         bhand_joint_state.tactile_array.finger2[i] = finger2[i];
       }
@@ -771,8 +771,6 @@ template<size_t DOF>
       for (int i = 0; i < palm.size(); i++){
         bhand_joint_state.tactile_array.palm[i] = palm[i];
       }
-
-      */
 
       bhand_joint_state.header.stamp = ros::Time::now(); // Set the timestamp
       bhand_joint_state_pub.publish(bhand_joint_state); // Publish the BarrettHand joint states

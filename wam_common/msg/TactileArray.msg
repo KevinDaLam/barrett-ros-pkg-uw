@@ -1,4 +1,4 @@
-float32[] finger1
-float32[] finger2
-float32[] finger3
-float32[] palm
+float64[24] finger1
+float64[24] finger2
+float64[24] finger3
+float64[24] palm
