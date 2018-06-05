@@ -167,6 +167,7 @@ template<size_t DOF>
     double cart_vel_mag, ortn_vel_mag;
     systems::Wam<DOF>& wam;
     Hand* hand;
+    ForceTorqueSensor* fts;
     jp_type jp, jp_cmd, jp_home;
     jp_type rt_jp_cmd, rt_jp_rl;
     jv_type rt_jv_cmd;
@@ -351,6 +352,15 @@ template<size_t DOF>
       bhand_joint_state.name.resize(7);
       bhand_joint_state.name = bhand_joints;
       bhand_joint_state.position.resize(7);
+      bhand_joint_state.effort.resize(3);
+
+    }
+
+    // Force Torque Sensor Initalization
+    fts = NULL;
+    if(pm.foundForceTorqueSensor()){
+      fts = pm.getForceTorqueSensor();
+      fts->tare();
     }
 
     wam.gravityCompensate(true); // Turning on Gravity Compenstation by Default when starting the WAM Node
@@ -750,26 +760,44 @@ template<size_t DOF>
       for (size_t j = 0; j < 3; j++)
         bhand_joint_state.position[j + 4] = ho[j];
 
-      std::vector<TactilePuck*> tactile_pucks = hand->getTactilePucks();
+      if (hand->hasFingertipTorqueSensors()){
+        std::vector<int> fingertip_torques = hand->getFingertipTorque();
+        for (int i =0; i < fingertip_torques.size(); i++){
+          bhand_joint_state.effort[i] = fingertip_torques[i];
+        }
+      }
 
+      // Get tactile sensor data
+      std::vector<TactilePuck*> tactile_pucks = hand->getTactilePucks();
       TactilePuck::v_type finger1, finger2, finger3, palm;
       finger1 = tactile_pucks[0]->getFullData();
       finger2 = tactile_pucks[1]->getFullData();
       finger3 = tactile_pucks[2]->getFullData();
       palm = tactile_pucks[3]->getFullData();
 
-      for (int i = 0; i < finger1.size(); i++){
+      // Save Tactile Array into ROS Msg
+      for (int i = 0; i < finger1.size(); i++)
         bhand_joint_state.tactile_array.finger1[i] = finger1[i];
-      }
-
-      for (int i = 0; i < finger2.size(); i++){
+      for (int i = 0; i < finger2.size(); i++)
         bhand_joint_state.tactile_array.finger2[i] = finger2[i];
-      }
-      for (int i = 0; i < finger3.size(); i++){
+      for (int i = 0; i < finger3.size(); i++)
         bhand_joint_state.tactile_array.finger3[i] = finger3[i];
-      }
-      for (int i = 0; i < palm.size(); i++){
+      for (int i = 0; i < palm.size(); i++)
         bhand_joint_state.tactile_array.palm[i] = palm[i];
+
+      // Force Torque Sensor
+      if (fts != NULL){
+        fts->update();
+        cf_type cf = math::saturate(fts->getForce(), 99.99);
+        ct_type ct = math::saturate(fts->getTorque(), 9.999);
+        fts->updateAccel();
+        ca_type ca = math::saturate(fts->getAccel(), 99.99);
+
+        for (int i = 0; i < 3; i++){
+          bhand_joint_state.force_torque_sensor.force[i] = cf[i];
+          bhand_joint_state.force_torque_sensor.torque[i] = ct[i];
+          bhand_joint_state.force_torque_sensor.acceleration[i] = ca[i];
+        }
       }
 
       bhand_joint_state.header.stamp = ros::Time::now(); // Set the timestamp
