@@ -18,23 +18,50 @@
 
 import numpy as np
 
-def validate_trajectory(trajectory, type)
+NUM_DOF = 7
+NUM_AXES = 3
+VELOCITY_LIMIT = 0.5
+
+def validate_trajectory(trajectory, frequency_of_trajectory, traj_type)
+
+  if traj_type == 'joint':
+    if trajectory.shape[1] != NUM_DOF:
+      return False
+  elif traj_type == 'cart':
+    if trajectory.shape[1] != NUM_AXES
+      return False
+
+  vel_lims = np.diff(trajectory, axis=0)
+  vel_lims = np.append(vel_lims, [[x for x in vel_lims[-1,:]]], axis = 0)
+  vel_lims = vel_lims * frequency_of_trajectory
+  vel_lims = np.absolute(vel_lims)
+
+  if vel_lims.all() > 0.5:
+    raise ValueError("One or more of the values in the specified velocities"
+                     "Exceed 0.5 meter / second. The robot won't like this."
+                     "Adjust the trajectory so that each point can be "
+                     "reached without exceeding this limit.")
 
   return True
 
-def create_joint_trajectory_from_csv(file_name):
+def create_joint_trajectory_from_csv(file_name, frequency_of_trajectory=250):
 
   trajectory = np.genfromtxt(file_name, delimiter=',')
 
-  if validate_trajectory(trajectory):
+  if validate_trajectory(trajectory, frequency_of_trajectory, 'joint'):
     return trajectory
   else:
-    raise ReferenceError("Invalid File Format for Trajectory")
+    raise ReferenceError("Invalid Trajectory")
 
 
-def create_cart_trajectory_from_csv(file_name):
+def create_cart_trajectory_from_csv(file_name, frequency_of_trajectory=250):
 
   trajectory = np.genfromtxt(file_name, delimiter=',')
+
+  if validate_trajectory(trajectory, frequency_of_trajectory, 'cart'):
+    return trajectory
+  else:
+    raise ReferenceError("Invalid Trajectory")
 
 
 def generate_trajectory_from_equation(equation, start_t, end_t, duration_of_trajectory, frequency_of_trajectory):
