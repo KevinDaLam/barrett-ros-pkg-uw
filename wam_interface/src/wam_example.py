@@ -19,44 +19,34 @@
 
 import rospy
 
-from wam_joint import *
+from wam_interface.wam_interface import WAMInterface
 
 if __name__ == "__main__":
 
-    node = rospy.init_node("motion_control")
+    node = rospy.init_node("wam_example")
 
-    # # Following this are some example locations.
-    # #To get these locations, in a terminal, run:
-    # # "roscore"
-    # # then in a separate terminal
-    # # "rosrun wam_node wam_node"
-    # # Follow the onscreen instructions.
-    # # Now it's ready to accept commands.
-    # # To make it so that you can move it by hand, in a separate terminal:
-    # # "rosservice call /wam/hold_joint_pos false"
-    # # Now move it to wherever you're interested in (e.g. a part pickup or a part drop off)
-    # # and you can get the joint coordinates by typing
-    # # "rostopic echo /wam/joint_states"
-    ## (or by running the function get_wam_joint_coordinates)
-    # # This will keep spewing out the current joint coordinates.
-    # # Kill it when you're done by hitting CTRL + C.
+    wam_home =  [1, 0, 1.5, 2, 1.57, 1.57, 1.57]
 
-    experiment_home_point = [0, -1.8, 0, 1]
+    wam = WAMInterface(wam_home)
 
-    experiment_pickup_point = [1, -1.8, 0, 1]
+    experiment_home_point = [0, -1.8, 0, 1, 1.57, 1.57, 1.57]
 
-    experiment_dropoff_point = [1, -1.8, 0, 2]
+    experiment_pickup_point = [1, -1.8, 0, 1, 1.57, 1.57, 1.57]
 
-    wam_home =  [1, 0, 1.5, 2]
+    experiment_dropoff_point = [1, -1.8, 0, 2, 1.57, 1.57, 1.57]
 
-    move_wam_from_current_location(wam_home, 2)
+    wam.joint.move_from_current_location(wam_home, 2)
+    wam.joint.move_from_current_location(experiment_home_point, 2)
+    wam.joint.move_from_current_location(experiment_pickup_point, 2)
 
-    move_wam_from_current_location(experiment_home_point, 2)
-    move_wam_from_current_location(experiment_pickup_point, 2)
-    close_wam_hand()
-    move_wam_from_current_location(experiment_dropoff_point, 2)
-    open_wam_hand()
-    move_wam_from_current_location(experiment_home_point, 2)
-    close_wam_hand_spread() 
-    move_wam_from_current_location(wam_home, 2)
+    wam.hand.close()
 
+    wam.joint.move_from_current_location(experiment_dropoff_point, 2)
+
+    wam.hand.open()
+
+    wam.joint.move_from_current_location(experiment_home_point, 2)
+
+    wam.hand.close_spread()
+
+    wam.joint.move_from_current_location(wam_home, 2)

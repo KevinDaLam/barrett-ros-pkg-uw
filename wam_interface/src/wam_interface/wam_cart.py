@@ -17,23 +17,32 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-
-import wam_joint
+import numpy as np
+import rospy
+from wam_common.msg import RTCartPos
+from wam_common.srv import *
+from numpy import zeros
+from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
-def get_wam_cartesian_coordinates():
+class Cartesian(object):
 
-	msg = rospy.wait_for_message('/wam/pose', PoseStamped)
+  def __init__(self):
+    pass
+
+  def get_coordinates(self):
+
+  	msg = rospy.wait_for_message('/wam/pose', PoseStamped)
     return list(msg.position)
 
-def create_cartesian_line_trajectory(start_position, end_positon, duration_of_trajectory, frequency_of_trajectory):
+  def create_line_trajectory(self, start_position, end_positon, duration_of_trajectory, frequency_of_trajectory):
 
-	frequency_of_ros_messages = frequency_of_trajectory # in Hz.
+  	frequency_of_ros_messages = frequency_of_trajectory # in Hz.
     number_of_way_points = duration_of_trajectory * frequency_of_ros_messages
     number_of_coords = start_position.__len__()
     trajectory = np.zeros((number_of_coords, number_of_way_points))
 
-    for i in xrange(number_of_joints):
+    for i in xrange(number_of_coords):
         trajectory[i] = np.linspace(start_position[i], end_position[i],
                                     number_of_way_points)
     trajectory = trajectory.T.copy()
@@ -53,9 +62,9 @@ def create_cartesian_line_trajectory(start_position, end_positon, duration_of_tr
     return trajectory, vel_lims
 
 
-def send_cartesian_trajectory(trajectory, velocities, frequency = 250):
+  def send_trajectory(self, trajectory, velocities, frequency = 250):
 
-	pub = rospy.Publisher("/wam/cart_pos_cmd", RTCartPos)
+  	pub = rospy.Publisher("/wam/cart_pos_cmd", RTCartPos)
     #If wam_node is running, it will be connected to this publisher.
     #Mostly this loop is here because you want to make sure the publisher
     #gets set up before it starts sending information.
@@ -79,13 +88,13 @@ def send_cartesian_trajectory(trajectory, velocities, frequency = 250):
             finished = True
         r.sleep()
 
-def create_and_send_wam_trajectory(wam_start, wam_end, duration, frequency=250):
+  def create_and_send_line_trajectory(self, wam_start, wam_end, duration, frequency=250):
     """ Create and send a trajectory that's a linear interpolation between
     wam_start and wam_end that lasts duration seconds send at frequency.
 
     args:
-      wam_start: a 1x<DOF> array of joint coordinates.
-      wam_end: a 1x<DOF> array of joint coordinates.
+      wam_start: a 1x3 array of cart coordinates.
+      wam_end: a 1x3 array of cart coordinates.
       duration: A float. The duration of the trajectory in seconds.
       frequency: The frequency of values. With the default, a new position is
         specified for every 0.004 seconds. 250 Hz is what wam_node is expecting.
@@ -94,7 +103,25 @@ def create_and_send_wam_trajectory(wam_start, wam_end, duration, frequency=250):
       None
       """
 
-    cart_traj, cart_vels = create_cartesian_line_trajectory(wam_start, wam_end,
+    cart_traj, cart_vels = self.create_line_trajectory(wam_start, wam_end,
                                                      duration, frequency)
-    send_cartesian_trajectory(joint_traj, joint_vels, frequency)
+    self.send_trajectory(cart_traj, cart_vels, frequency)
 
+  def move_wam_from_current_location(self, wam_end, duration, frequency=250):
+    """ Create and send a trajectory that's a linear interpolation between
+    where the wam currently is and wam_end that lasts duration seconds.
+    Publishes the trajectory at frequency Hz.
+
+    args:
+      wam_end: a 1x3 array of cart coordinates.
+      duration: A float. The duration of the trajectory in seconds.
+      frequency: The frequency of values. With the default, a new position is
+        specified for every 0.004 seconds. 250 Hz is what wam_node is expecting.
+
+    returns:
+      None
+      """
+    wam_start = self.get_coordinates()
+    cart_traj, cart_vels = self.create_trajectory(wam_start, wam_end,
+                                                    duration, frequency)
+    self.send_trajectory(cart_traj, joint_vels, frequency)
