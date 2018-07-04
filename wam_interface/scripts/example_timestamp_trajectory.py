@@ -16,15 +16,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import rospy
+import numpy as np
 
-import wam_cart
-import wam_joint
-import wam_bhand
+file_name = 'files/test_trajectory.csv'
 
-class WAMInterface(object):
+from wam_interface.wam_interface import WAMInterface
 
-  def __init__(self, wam_joint_home=[1, 0, 1.5, 2, 1.57, 1.57, 1.57]):
-    self.joint = wam_joint.Joint(wam_joint_home)
-    self.cartesian = wam_cart.Cartesian()
-    self.hand = wam_bhand.BHand()
+def main():
+
+	# node = rospy.init_node("wam_example")
+	wam_home = [0, -1.8, 0, 1, 1.57, 1.57, 1.57]
+	wam = WAMInterface(wam_home)
+
+	time_trajectory = np.genfromtxt(file_name, delimiter=',')
+	freq_trajectory = wam.joint.convert_time_to_frequency(time_trajectory, frequency=20)
+	np.set_printoptions(suppress=True)
+	print(freq_trajectory)
+
+if __name__ == '__main__':
+	main()
+	

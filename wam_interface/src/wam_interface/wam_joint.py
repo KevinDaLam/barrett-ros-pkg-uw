@@ -50,9 +50,9 @@ class Joint(object):
         except rospy.ServiceException as exc:
             print("Service did not process request: " + str(exc))
             
-        
-    def create_trajectory(self, start_position, end_position,
-                                 duration_of_trajectory, frequency_of_trajectory):
+    @staticmethod
+    def create_trajectory(start_position, end_position,
+                                 duration_of_trajectory, frequency_of_trajectory, add_waypoint=0):
         """
         Create a trajectory from start_position to end_position.
 
@@ -79,7 +79,7 @@ class Joint(object):
         """
 
         frequency_of_ros_messages = frequency_of_trajectory # in Hz.
-        number_of_way_points = duration_of_trajectory * frequency_of_ros_messages
+        number_of_way_points = duration_of_trajectory * frequency_of_ros_messages + add_waypoint
         number_of_joints = start_position.__len__()
         trajectory = np.zeros((number_of_joints, number_of_way_points))
 
@@ -197,3 +197,21 @@ class Joint(object):
             resp1 = move_wam_srv(end_point)
         except rospy.ServiceException as exc:
             print("Service did not process request: " + str(exc))
+
+    def convert_time_to_frequency(self, timed_trajectory, frequency):
+
+      timestamps = timed_trajectory[:,0]
+
+      trajectory = timed_trajectory[:,1:] 
+
+      freq_trajectory = trajectory[0]
+
+      # Create linear trajectories between each point for difference in timestamps
+      for i in range(len(trajectory)-1):
+        duration = timestamps[i+1] - timestamps[i]
+        part_traj, vel_lims = self.create_trajectory(trajectory[i], trajectory[i+1], duration, frequency, add_waypoint=1)
+        # print part_traj
+        freq_trajectory = np.vstack((freq_trajectory, part_traj[1:,:]))
+
+      return freq_trajectory
+

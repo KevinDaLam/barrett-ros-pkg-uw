@@ -32,12 +32,12 @@ class Cartesian(object):
 
   def get_coordinates(self):
 
-  	msg = rospy.wait_for_message('/wam/pose', PoseStamped)
+    msg = rospy.wait_for_message('/wam/pose', PoseStamped)
     return list(msg.position)
 
   def create_line_trajectory(self, start_position, end_positon, duration_of_trajectory, frequency_of_trajectory):
 
-  	frequency_of_ros_messages = frequency_of_trajectory # in Hz.
+    frequency_of_ros_messages = frequency_of_trajectory # in Hz.
     number_of_way_points = duration_of_trajectory * frequency_of_ros_messages
     number_of_coords = start_position.__len__()
     trajectory = np.zeros((number_of_coords, number_of_way_points))
@@ -64,7 +64,7 @@ class Cartesian(object):
 
   def send_trajectory(self, trajectory, velocities, frequency = 250):
 
-  	pub = rospy.Publisher("/wam/cart_pos_cmd", RTCartPos)
+    pub = rospy.Publisher("/wam/cart_pos_cmd", RTCartPos)
     #If wam_node is running, it will be connected to this publisher.
     #Mostly this loop is here because you want to make sure the publisher
     #gets set up before it starts sending information.

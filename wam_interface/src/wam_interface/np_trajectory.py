@@ -22,13 +22,13 @@ NUM_DOF = 7
 NUM_AXES = 3
 VELOCITY_LIMIT = 0.5
 
-def validate_trajectory(trajectory, frequency_of_trajectory, traj_type)
+def validate_trajectory(trajectory, frequency_of_trajectory, traj_type):
 
   if traj_type == 'joint':
     if trajectory.shape[1] != NUM_DOF:
       return False
   elif traj_type == 'cart':
-    if trajectory.shape[1] != NUM_AXES
+    if trajectory.shape[1] != NUM_AXES:
       return False
 
   vel_lims = np.diff(trajectory, axis=0)
