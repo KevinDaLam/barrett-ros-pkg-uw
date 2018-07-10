@@ -103,7 +103,7 @@ class Joint(object):
         return trajectory, vel_lims
 
 
-    def send_trajectory(trajectory, velocities, frequency=250):
+    def send_trajectory(self, trajectory, velocities, frequency=250):
         """
         This is used to send a trajectory to the WAM arm at a given frequency.
 
@@ -123,8 +123,8 @@ class Joint(object):
         #Mostly this loop is here because you want to make sure the publisher
         #gets set up before it starts sending information.
         while pub.get_num_connections() < 1:
-            print "Waiting on the publisher to go up."
-            rospy.sleep(0.5)
+          print "Waiting on the publisher to go up."
+          rospy.sleep(0.5)
 
         trajectory_length = trajectory.__len__()
         finished = False
@@ -133,16 +133,16 @@ class Joint(object):
 
         r = rospy.Rate(frequency)
 
-        while not rospy.is_shutdown() and not finished:
-            message_for_service.joints = trajectory[traj_row]
-            message_for_service.rate_limits = velocities[traj_row]
-            traj_row += 1
-            pub.publish(message_for_service)
-            if traj_row == trajectory_length - 1:
-                finished = True
-            r.sleep()
+        while not rospy.is_shutdown() and not finished:      
+          message_for_service.joints = trajectory[traj_row]
+          message_for_service.rate_limits = velocities[traj_row]
+          traj_row += 1
+          pub.publish(message_for_service)
+          if traj_row == trajectory_length - 1:
+              finished = True
+          r.sleep()
 
-    def create_and_send_trajectory(wam_start, wam_end, duration, frequency=250):
+    def create_and_send_trajectory(self, wam_start, wam_end, duration, frequency=250):
         """ Create and send a trajectory that's a linear interpolation between
         wam_start and wam_end that lasts duration seconds send at frequency.
 
@@ -159,10 +159,10 @@ class Joint(object):
 
         joint_traj, joint_vels = self.create_trajectory(wam_start, wam_end,
                                                          duration, frequency)
-        self.send_joint_trajectory(joint_traj, joint_vels, frequency)
+        self.send_trajectory(joint_traj, joint_vels, frequency)
 
 
-    def move_from_current_location(wam_end, duration, frequency=250):
+    def move_from_current_location(self, wam_end, duration, frequency=250):
         """ Create and send a trajectory that's a linear interpolation between
         where the wam currently is and wam_end that lasts duration seconds.
         Publishes the trajectory at frequency Hz.
@@ -177,12 +177,12 @@ class Joint(object):
           None
           """
         wam_start = self.get_coordinates()
-        joint_traj, joint_vels = create_trajectory(wam_start, wam_end,
+        joint_traj, joint_vels = self.create_trajectory(wam_start, wam_end,
                                                         duration, frequency)
-        send_joint_trajectory(joint_traj, joint_vels, frequency)
+        self.send_trajectory(joint_traj, joint_vels, frequency)
 
 
-    def request_move(end_point, velocity_limits):
+    def request_move(self, end_point, velocity_limits):
         """
         Uses a service call to have the WAM move to the end point. Goes at its own
         pace.
@@ -205,13 +205,18 @@ class Joint(object):
       trajectory = timed_trajectory[:,1:] 
 
       freq_trajectory = trajectory[0]
+      vel_lims = 0
 
       # Create linear trajectories between each point for difference in timestamps
       for i in range(len(trajectory)-1):
         duration = timestamps[i+1] - timestamps[i]
-        part_traj, vel_lims = self.create_trajectory(trajectory[i], trajectory[i+1], duration, frequency, add_waypoint=1)
+        part_traj, part_vel_lims = self.create_trajectory(trajectory[i], trajectory[i+1], duration, frequency, add_waypoint=1)
         # print part_traj
         freq_trajectory = np.vstack((freq_trajectory, part_traj[1:,:]))
+        if i == 0:
+          vel_lims = part_vel_lims
+        else:
+          vel_lims = np.vstack((vel_lims, part_vel_lims[1:,:]))
 
-      return freq_trajectory
+      return freq_trajectory, vel_lims
 

@@ -24,7 +24,7 @@ import wam_bhand
 
 class WAMInterface(object):
 
-  def __init__(self, wam_joint_home=[1, 0, 1.5, 2, 1.57, 1.57, 1.57]):
+  def __init__(self, wam_joint_home=[0, -1.94, 0, 2.79, 0, 0, 0]):
     self.joint = wam_joint.Joint(wam_joint_home)
     self.cartesian = wam_cart.Cartesian()
     self.hand = wam_bhand.BHand()

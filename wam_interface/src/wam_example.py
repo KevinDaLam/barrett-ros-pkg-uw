@@ -25,15 +25,15 @@ if __name__ == "__main__":
 
     node = rospy.init_node("wam_example")
 
-    wam_home =  [1, 0, 1.5, 2, 1.57, 1.57, 1.57]
+    wam_home =  [0, -1.94, 0, 2.79, 0, 0, 0]
 
     wam = WAMInterface(wam_home)
 
-    experiment_home_point = [0, -1.8, 0, 1, 1.57, 1.57, 1.57]
+    experiment_home_point = [0, -1.94, 0, 2.79, 0, 0, 0]
 
-    experiment_pickup_point = [1, -1.8, 0, 1, 1.57, 1.57, 1.57]
+    experiment_pickup_point = [1, -1.8, 0, 1, 0, 00, 0]
 
-    experiment_dropoff_point = [1, -1.8, 0, 2, 1.57, 1.57, 1.57]
+    experiment_dropoff_point = [1, -1.8, 0, 2, 0, 0, 0]
 
     wam.joint.move_from_current_location(wam_home, 2)
     wam.joint.move_from_current_location(experiment_home_point, 2)

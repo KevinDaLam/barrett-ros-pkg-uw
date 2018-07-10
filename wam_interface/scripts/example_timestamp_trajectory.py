@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import rospy
 import numpy as np
 
 file_name = 'files/test_trajectory.csv'
@@ -25,13 +26,23 @@ from wam_interface.wam_interface import WAMInterface
 def main():
 
 	# node = rospy.init_node("wam_example")
-	wam_home = [0, -1.8, 0, 1, 1.57, 1.57, 1.57]
+
+	node = rospy.init_node("wam_example")
+
+	wam_home = [0, -1.94, 0, 2.79, 0, 0, 0]
 	wam = WAMInterface(wam_home)
 
 	time_trajectory = np.genfromtxt(file_name, delimiter=',')
-	freq_trajectory = wam.joint.convert_time_to_frequency(time_trajectory, frequency=20)
+	freq_trajectory, freq_vel_lims = wam.joint.convert_time_to_frequency(time_trajectory, frequency=250)
 	np.set_printoptions(suppress=True)
-	print(freq_trajectory)
+
+	wam.joint.move_from_current_location(wam_home, 5)
+
+	wam.joint.move_from_current_location(freq_trajectory[0], 5)
+	
+	wam.joint.send_trajectory(freq_trajectory, freq_vel_lims, frequency=250)
+
+	wam.joint.move_from_current_location(wam_home, 5)
 
 if __name__ == '__main__':
 	main()
