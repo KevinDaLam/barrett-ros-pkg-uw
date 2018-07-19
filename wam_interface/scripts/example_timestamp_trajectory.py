@@ -16,8 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# Note: Before running the wam_node on the robot, use the following commands
+# if running scripts on remote PC while SSHing into the WAM computer terminal:
+# export ROS_IP=192.168.115.101
+# source ~/.bashrc
+# On the remote PC's terminal:
+# export ROS_MASTER_URI=http://192.168.115.101:11311
+# export ROS_IP=192.168.115.102
+# source ~/.bashrc
+
 import rospy
 import numpy as np
+import pandas
+import rosbag_pandas
 
 file_name = 'files/test_trajectory.csv'
 
@@ -32,6 +43,7 @@ def main():
 	wam_home = [0, -1.94, 0, 2.79, 0, 0, 0]
 	wam = WAMInterface(wam_home)
 
+	rospy.loginfo("Grabbing trajectory from text")
 	time_trajectory = np.genfromtxt(file_name, delimiter=',')
 	freq_trajectory, freq_vel_lims = wam.joint.convert_time_to_frequency(time_trajectory, frequency=250)
 	np.set_printoptions(suppress=True)
