@@ -210,6 +210,7 @@ template<size_t DOF>
     //Published Topics
     sensor_msgs::JointState wam_joint_state;
     wam_common::HandState bhand_joint_state;
+    // wam_common::TactileArray tactile_array_state;
     geometry_msgs::PoseStamped wam_pose;
 
     //Publishers
@@ -767,6 +768,7 @@ template<size_t DOF>
         }
       }
 
+      // ----------------------------Tactile Array --------------
       // Get tactile sensor data
       std::vector<TactilePuck*> tactile_pucks = hand->getTactilePucks();
       TactilePuck::v_type finger1, finger2, finger3, palm;
@@ -776,6 +778,7 @@ template<size_t DOF>
       palm = tactile_pucks[3]->getFullData();
 
       // Save Tactile Array into ROS Msg
+      // TODO: Replace bhand_joint_state with tactile_array_state and move to another function
       for (int i = 0; i < finger1.size(); i++)
         bhand_joint_state.tactile_array.finger1[i] = finger1[i];
       for (int i = 0; i < finger2.size(); i++)
@@ -784,6 +787,8 @@ template<size_t DOF>
         bhand_joint_state.tactile_array.finger3[i] = finger3[i];
       for (int i = 0; i < palm.size(); i++)
         bhand_joint_state.tactile_array.palm[i] = palm[i];
+
+      // ----------------------------------------
 
       // Force Torque Sensor
       if (fts != NULL){
@@ -962,8 +967,10 @@ template<size_t DOF>
     wam_node.init(pm);
     ros::Rate pub_rate(PUBLISH_FREQ);
 
-    if (pm.getHand())
+    if (pm.getHand()){
       boost::thread handPubThread(&WamNode<DOF>::publishHand, &wam_node);
+      // boost::thread handPubThread(&WamNode<DOF>::publishTactileArray, &wam_node);
+    }
 
     while (ros::ok() && pm.getSafetyModule()->getMode() == SafetyModule::ACTIVE)
     {
